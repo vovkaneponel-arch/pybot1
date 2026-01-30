@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Python Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f3f3f3; margin: 0; padding: 20px; }
+    #chat-box { background: white; border-radius: 8px; padding: 10px; max-width: 600px; margin: auto; height: 400px; overflow-y: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+    .msg { margin: 8px 0; }
+    .user { color: #0066cc; }
+    .bot { color: #009933; }
+    #input-area { text-align: center; margin-top: 10px; }
+    input { width: 70%; padding: 8px; }
+    button { padding: 8px 16px; margin-left: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">💬 Chatbot на Python</h2>
+  <div id="chat-box"></div>
+  <div id="input-area">
+    <input id="user-input" placeholder="Напишіть повідомлення..." />
+    <button id="send-btn">Відправити</button>
+  </div>
+
+<script>
+const backend = "https://samur2u2.pythonanywhere.com/chat";
+
+function addMessage(sender, text) {
+  const div = document.createElement("div");
+  div.className = "msg " + sender;
+  div.textContent = (sender === "user" ? "Ви: " : "Бот: ") + text;
+  document.getElementById("chat-box").appendChild(div);
+  document.getElementById("chat-box").scrollTop = 999999;
+}
+
+document.getElementById("send-btn").onclick = async () => {
+  const input = document.getElementById("user-input");
+  const msg = input.value.trim();
+  if (!msg) return;
+  addMessage("user", msg);
+  input.value = "";
+
+  try {
+    const res = await fetch(backend, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({message: msg})
+    });
+    const data = await res.json();
+    addMessage("bot", data.reply);
+  } catch (err) {
+    addMessage("bot", "Помилка зв’язку з сервером 😢");
+  }
+};
+</script>
+</body>
+</html>
